@@ -23,7 +23,7 @@ router.post('/register', [
         await user.save();
         res.status(201).json({ message: 'Usuário cadastrado com sucesso!' });
     } catch (error) {
-        res.status(400).json({ error: 'Erro ao cadastrar usuário.' });
+        res.status(400).json({ error: 'Erro ao cadastrar usuário.', details: error.message });
     }
 });
 
@@ -33,24 +33,39 @@ router.post('/login', async (req, res) => {
         const { email, password } = req.body;
         const user = await User.findOne({ email });
         if (user && await bcrypt.compare(password, user.password)) {
-            const token = jwt.sign({ userId: user._id }, 'seuSegredo', { expiresIn: '1h' });
+            const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET, { expiresIn: '1h' });
             res.status(200).json({ message: 'Login realizado com sucesso!', token });
         } else {
             res.status(400).json({ error: 'Email ou senha inválidos.' });
         }
     } catch (error) {
-        res.status(400).json({ error: 'Erro ao fazer login.' });
+        res.status(400).json({ error: 'Erro ao fazer login.', details: error.message });
     }
 });
 
+// Middleware de autenticação
+const authMiddleware = (req, res, next) => {
+    const token = req.header('Authorization')?.replace('Bearer ', '');
+    if (!token) {
+        return res.status(401).json({ error: 'Token não fornecido.' });
+    }
+    try {
+        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+        req.userId = decoded.userId;
+        next();
+    } catch (error) {
+        res.status(401).json({ error: 'Token inválido.' });
+    }
+};
+
 // Rota para atualizar a pontuação
-router.put('/update-score', async (req, res) => {
+router.put('/update-score', authMiddleware, async (req, res) => {
     try {
         const { userId, score } = req.body;
         const user = await User.findByIdAndUpdate(userId, { score }, { new: true });
         res.status(200).json({ message: 'Pontuação atualizada!', user });
     } catch (error) {
-        res.status(400).json({ error: 'Erro ao atualizar pontuação.' });
+        res.status(400).json({ error: 'Erro ao atualizar pontuação.', details: error.message });
     }
 });
 
@@ -60,14 +75,14 @@ router.get('/ranking', async (req, res) => {
         const users = await User.find().sort({ score: -1 }).limit(10);
         res.status(200).json(users);
     } catch (error) {
-        res.status(400).json({ error: 'Erro ao obter ranking.' });
+        res.status(400).json({ error: 'Erro ao obter ranking.', details: error.message });
     }
 });
 
 // Middleware para tratamento de erros
 router.use((err, req, res, next) => {
     console.error(err.stack);
-    res.status(500).json({ error: 'Erro interno no servidor.' });
+    res.status(500).json({ error: 'Erro interno no servidor.', details: err.message });
 });
 
 module.exports = router;
