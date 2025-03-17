@@ -1,3 +1,5 @@
+require('dotenv').config();
+
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
@@ -17,7 +19,12 @@ mongoose.connect('mongodb+srv://itaprojetotablet:VEcKN7NxbJ1m52sN@cluster0.hmtgg
 app.use(cors());
 app.use(express.json());
 
-// Rotas
+// Rota para a página inicial
+app.get('/', (req, res) => {
+  res.send('Bem-vindo à aplicação!');
+});
+
+// Rotas da API
 app.use('/api', apiRoutes);
 
 // Iniciar servidor
