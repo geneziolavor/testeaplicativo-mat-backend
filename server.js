@@ -8,11 +8,12 @@ const apiRoutes = require('./routes/api');
 const app = express();
 const PORT = process.env.PORT || 5000;
 
+// String de conexão do MongoDB
+const uri = process.env.MONGO_URI || "mongodb+srv://itaprojetotablet:EEXwWI9BWReU8Cyc@clusterappmat.z19hs.mongodb.net/?retryWrites=true&w=majority&appName=Clusterappmat";
+
 // Conectar ao MongoDB
-mongoose.connect('mongodb+srv://itaprojetotablet:VEcKN7NxbJ1m52sN@cluster0.hmtgg.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0', {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
-}).then(() => console.log('Conectado ao MongoDB!'))
+mongoose.connect(uri)
+  .then(() => console.log('Conectado ao MongoDB!'))
   .catch(err => console.error('Erro ao conectar ao MongoDB:', err));
 
 // Middlewares
@@ -29,5 +30,5 @@ app.use('/api', apiRoutes);
 
 // Iniciar servidor
 app.listen(PORT, () => {
-    console.log(`Servidor rodando na porta ${PORT}`);
+  console.log(`Servidor rodando na porta ${PORT}`);
 });
