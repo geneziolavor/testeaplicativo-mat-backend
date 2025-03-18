@@ -4,6 +4,7 @@ const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
 const apiRoutes = require('./routes/api');
+const path = require('path');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -20,9 +21,12 @@ mongoose.connect(uri)
 app.use(cors());
 app.use(express.json());
 
+// Configura o servidor para servir arquivos estáticos da pasta "frontend"
+app.use(express.static(path.join(__dirname, '../frontend')));
+
 // Rota para a página inicial
 app.get('/', (req, res) => {
-  res.send('Bem-vindo à aplicação!');
+  res.sendFile(path.join(__dirname, '../frontend', 'math-competition-fixed.html'));
 });
 
 // Rotas da API
