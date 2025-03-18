@@ -1,0 +1,728 @@
+<<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MathChallenge - Competição de Matemática Clube de robotica</title>
+    <style>
+       :root {
+    --primary-color: #4a6fa5;
+    --secondary-color: #166088;
+    --accent-color: #4caf50;
+    --light-color: #f9f9f9;
+    --dark-color: #333;
+    --error-color: #f44336;
+    --success-color: #4CAF50;
+}
+    
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+body {
+    background-color: var(--light-color);
+    color: var(--dark-color);
+    line-height: 1.6;
+}
+
+header {
+    background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+    color: white;
+    padding: 1rem;
+    text-align: center;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+h1 {
+    font-size: 2rem;
+    margin-bottom: 0.5rem;
+}
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 1rem;
+}
+
+.card {
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    padding: 2rem;
+    margin-bottom: 1rem;
+}
+
+.btn {
+    background-color: var(--primary-color);
+    color: white;
+    border: none;
+    padding: 0.75rem 1.5rem;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 1rem;
+    transition: background-color 0.3s;
+}
+
+.btn:hover {
+    background-color: var(--secondary-color);
+}
+
+.btn-success {
+    background-color: var(--accent-color);
+}
+
+.btn-success:hover {
+    background-color: #3d8b40;
+}
+
+.form-group {
+    margin-bottom: 1rem;
+}
+
+label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: bold;
+}
+
+input, select {
+    width: 100%;
+    padding: 0.75rem;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 1rem;
+}
+
+.tabs {
+    display: flex;
+    margin-bottom: 1rem;
+}
+
+.tab {
+    padding: 1rem 2rem;
+    background-color: #e9e9e9;
+    cursor: pointer;
+    border-radius: 4px 4px 0 0;
+    margin-right: 2px;
+}
+
+.tab.active {
+    background-color: white;
+    border-bottom: 3px solid var(--accent-color);
+}
+
+.tab-content {
+    display: none;
+}
+
+.tab-content.active {
+    display: block;
+}
+
+.challenge {
+    font-size: 2rem;
+    text-align: center;
+    margin: 2rem 0;
+}
+
+.timer {
+    text-align: center;
+    font-size: 1.5rem;
+    margin-bottom: 1rem;
+    color: var(--primary-color);
+}
+
+.options {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1rem;
+    margin-bottom: 2rem;
+}
+
+.option {
+    background-color: #f1f1f1;
+    padding: 1rem;
+    border-radius: 4px;
+    text-align: center;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.option:hover {
+    background-color: #e1e1e1;
+}
+
+.feedback {
+    text-align: center;
+    margin: 1rem 0;
+    font-weight: bold;
+}
+
+.correct {
+    color: var(--success-color);
+}
+
+.incorrect {
+    color: var(--error-color);
+}
+
+.score {
+    font-size: 1.2rem;
+    text-align: right;
+    margin-bottom: 1rem;
+}
+
+.ranking-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.ranking-table th, .ranking-table td {
+    padding: 0.75rem;
+    text-align: left;
+    border-bottom: 1px solid #ddd;
+}
+
+.ranking-table th {
+    background-color: #f1f1f1;
+}
+
+@media (max-width: 768px) {
+    .options {
+        grid-template-columns: 1fr;
+    }
+}
+
+.alert {
+    padding: 1rem;
+    border-radius: 4px;
+    margin-bottom: 1rem;
+}
+
+.alert-success {
+    background-color: #d4edda;
+    color: #155724;
+}
+
+.alert-error {
+    background-color: #f8d7da;
+    color: #721c24;
+}
+
+.hidden {
+    display: none;
+}
+    </style>
+</head>
+<body>
+    <header>
+        <h1>MathChallenge</h1>
+        <p>Desafie suas habilidades matemáticas!</p>
+    </header>
+
+    <div class="container">
+        <div class="tabs">
+            <div class="tab active" onclick="switchTab('login')">Login</div>
+            <div class="tab" onclick="switchTab('register')">Cadastro</div>
+            <div class="tab hidden" onclick="switchTab('challenge')" id="tab-challenge">Desafio</div>
+            <div class="tab" onclick="switchTab('ranking')">Ranking</div>
+        </div>
+
+        <!-- Login Tab -->
+        <div class="tab-content active" id="login">
+            <div class="card">
+                <h2>Entrar</h2>
+                <div id="login-alert" class="alert hidden"></div>
+                <div class="form-group">
+                    <label for="login-email">Email</label>
+                    <input type="email" id="login-email" placeholder="Seu email">
+                </div>
+                <div class="form-group">
+                    <label for="login-password">Senha</label>
+                    <input type="password" id="login-password" placeholder="Sua senha">
+                </div>
+                <button class="btn" id="login-btn">Entrar</button>
+            </div>
+        </div>
+
+        <!-- Register Tab -->
+        <div class="tab-content" id="register">
+            <div class="card">
+                <h2>Cadastre-se</h2>
+                <div id="register-alert" class="alert hidden"></div>
+                <div class="form-group">
+                    <label for="register-name">Nome Completo</label>
+                    <input type="text" id="register-name" placeholder="Seu nome completo">
+                </div>
+                <div class="form-group">
+                    <label for="register-email">Email</label>
+                    <input type="email" id="register-email" placeholder="Seu email">
+                </div>
+                <div class="form-group">
+                    <label for="register-password">Senha</label>
+                    <input type="password" id="register-password" placeholder="Crie uma senha">
+                </div>
+                <div class="form-group">
+                    <label for="register-school">Nome da Escola</label>
+                    <input type="text" id="register-school" placeholder="Nome da sua escola">
+                </div>
+                <div class="form-group">
+                    <label for="register-grade">Série</label>
+                    <select id="register-grade">
+                        <option value="">Selecione sua série</option>
+                        <option value="1">1º ano</option>
+                        <option value="2">2º ano</option>
+                        <option value="3">3º ano</option>
+                        <option value="4">4º ano</option>
+                        <option value="5">5º ano</option>
+                        <option value="6">6º ano</option>
+                        <option value="7">7º ano</option>
+                        <option value="8">8º ano</option>
+                        <option value="9">9º ano</option>
+                        <option value="10">1º ano - Ensino Médio</option>
+                        <option value="11">2º ano - Ensino Médio</option>
+                        <option value="12">3º ano - Ensino Médio</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="register-age">Idade</label>
+                    <input type="number" id="register-age" placeholder="Sua idade" min="5" max="20">
+                </div>
+                <button class="btn" id="register-btn">Cadastrar</button>
+            </div>
+        </div>
+
+        <!-- Challenge Tab -->
+        <div class="tab-content" id="challenge">
+            <div class="card">
+                <div class="score">Pontuação: <span id="score">0</span></div>
+                <div class="timer">Tempo: <span id="timer">30</span> segundos</div>
+                <div class="form-group">
+                    <label for="difficulty">Nível de Dificuldade</label>
+                    <select id="difficulty">
+                        <option value="easy">Fácil</option>
+                        <option value="medium">Médio</option>
+                        <option value="hard">Difícil</option>
+                    </select>
+                </div>
+                <div class="challenge" id="challenge-text">12 + 8 = ?</div>
+                <div class="options" id="options-container">
+                    <div class="option">18</div>
+                    <div class="option">20</div>
+                    <div class="option">22</div>
+                    <div class="option">24</div>
+                </div>
+                <div class="feedback" id="feedback"></div>
+                <button class="btn btn-success" id="next-btn">Próximo Desafio</button>
+            </div>
+        </div>
+
+        <!-- Ranking Tab -->
+        <div class="tab-content" id="ranking">
+            <div class="card">
+                <h2>Ranking dos Competidores</h2>
+                <div class="form-group">
+                    <label for="ranking-filter">Filtrar por Série</label>
+                    <select id="ranking-filter">
+                        <option value="all">Todos</option>
+                        <option value="1">1º ano</option>
+                        <option value="2">2º ano</option>
+                        <option value="3">3º ano</option>
+                        <option value="4">4º ano</option>
+                        <option value="5">5º ano</option>
+                        <option value="6">6º ano</option>
+                        <option value="7">7º ano</option>
+                        <option value="8">8º ano</option>
+                        <option value="9">9º ano</option>
+                        <option value="10">1º ano - Ensino Médio</option>
+                        <option value="11">2º ano - Ensino Médio</option>
+                        <option value="12">3º ano - Ensino Médio</option>
+                    </select>
+                </div>
+                <table class="ranking-table">
+                    <thead>
+                        <tr>
+                            <th>Posição</th>
+                            <th>Nome</th>
+                            <th>Escola</th>
+                            <th>Série</th>
+                            <th>Pontuação</th>
+                        </tr>
+                    </thead>
+                    <tbody id="ranking-table-body">
+                        <!-- Ranking data will be inserted here -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Função para alternar entre as abas
+        function switchTab(tabId) {
+            const tabs = document.querySelectorAll('.tab');
+            tabs.forEach(tab => tab.classList.remove('active'));
+
+            const clickedTab = document.querySelector(`.tab[onclick*="${tabId}"]`);
+            if (clickedTab) {
+                clickedTab.classList.add('active');
+            }
+
+            const tabContents = document.querySelectorAll('.tab-content');
+            tabContents.forEach(content => content.classList.remove('active'));
+
+            const targetTabContent = document.getElementById(tabId);
+            if (targetTabContent) {
+                targetTabContent.classList.add('active');
+            }
+
+            if (tabId === 'challenge' && State.currentUser) {
+                State.resetChallenge();
+            }
+
+            if (tabId === 'ranking') {
+                updateRankings();
+            }
+        }
+
+        // Application State
+        const State = {
+            currentUser: null,
+            currentChallenge: null,
+            score: 0,
+            timeRemaining: 30,
+            timerInterval: null,
+            currentDifficulty: 'easy',
+            correctAnswers: 0,
+            totalQuestions: 0,
+            maxQuestionsPerLevel: 50,
+            gameOver: false,
+
+            setCurrentUser(user) {
+                this.currentUser = user;
+                if (user) {
+                    document.getElementById('tab-challenge').classList.remove('hidden');
+                    switchTab('challenge');
+                } else {
+                    document.getElementById('tab-challenge').classList.add('hidden');
+                }
+            },
+
+            generateChallenge() {
+                const operations = ['+', '-', '*', '/'];
+                const operation = operations[Math.floor(Math.random() * operations.length)];
+
+                let num1, num2, answer, choices;
+
+                const difficultySettings = {
+                    easy: { maxNumber: 50, maxOffset: 10 },
+                    medium: { maxNumber: 100, maxOffset: 20 },
+                    hard: { maxNumber: 200, maxOffset: 30 }
+                };
+
+                const { maxNumber, maxOffset } = difficultySettings[this.currentDifficulty];
+
+                switch (operation) {
+                    case '+':
+                        num1 = Math.floor(Math.random() * maxNumber) + 1;
+                        num2 = Math.floor(Math.random() * maxNumber) + 1;
+                        answer = num1 + num2;
+                        break;
+                    case '-':
+                        num1 = Math.floor(Math.random() * maxNumber) + 1;
+                        num2 = Math.floor(Math.random() * num1) + 1;
+                        answer = num1 - num2;
+                        break;
+                    case '*':
+                        num1 = Math.floor(Math.random() * (maxNumber / 10)) + 1;
+                        num2 = Math.floor(Math.random() * (maxNumber / 10)) + 1;
+                        answer = num1 * num2;
+                        break;
+                    case '/':
+                        num2 = Math.floor(Math.random() * (maxNumber / 10)) + 1;
+                        answer = Math.floor(Math.random() * (maxNumber / 10)) + 1;
+                        num1 = num2 * answer;
+                        break;
+                }
+
+                choices = [answer];
+                while (choices.length < 4) {
+                    const offset = Math.floor(Math.random() * maxOffset) + 1;
+                    const newChoice = Math.random() < 0.5 ? answer + offset : answer - offset;
+                    if (!choices.includes(newChoice) && newChoice >= 0) {
+                        choices.push(newChoice);
+                    }
+                }
+
+                choices = choices.sort(() => Math.random() - 0.5);
+
+                this.currentChallenge = {
+                    question: `${num1} ${operation} ${num2} = ?`,
+                    answer,
+                    choices
+                };
+
+                return this.currentChallenge;
+            },
+
+            startTimer() {
+                this.timeRemaining = 30;
+                document.getElementById('timer').textContent = this.timeRemaining;
+
+                clearInterval(this.timerInterval);
+                this.timerInterval = setInterval(() => {
+                    this.timeRemaining--;
+                    document.getElementById('timer').textContent = this.timeRemaining;
+
+                    if (this.timeRemaining <= 0) {
+                        clearInterval(this.timerInterval);
+                        this.handleTimeUp();
+                    }
+                }, 1000);
+            },
+
+            handleTimeUp() {
+                document.getElementById('feedback').textContent = "Tempo esgotado!";
+                document.getElementById('feedback').className = "feedback incorrect";
+                this.showCorrectAnswer();
+            },
+
+            showCorrectAnswer() {
+                const options = document.querySelectorAll('.option');
+                options.forEach(option => {
+                    if (parseInt(option.textContent) === this.currentChallenge.answer) {
+                        option.style.backgroundColor = "#d4edda";
+                    }
+                    option.style.pointerEvents = "none";
+                });
+            },
+
+            resetChallenge() {
+                if (this.gameOver) return;
+
+                const feedback = document.getElementById('feedback');
+                feedback.textContent = "";
+                feedback.className = "feedback";
+
+                const options = document.querySelectorAll('.option');
+                options.forEach(option => {
+                    option.style.backgroundColor = "";
+                    option.style.pointerEvents = "auto";
+                });
+
+                const challenge = this.generateChallenge();
+                document.getElementById('challenge-text').textContent = challenge.question;
+
+                const optionsContainer = document.getElementById('options-container');
+                optionsContainer.innerHTML = '';
+                challenge.choices.forEach(choice => {
+                    const optionElement = document.createElement('div');
+                    optionElement.className = 'option';
+                    optionElement.textContent = choice;
+                    optionElement.addEventListener('click', () => this.checkAnswer(choice));
+                    optionsContainer.appendChild(optionElement);
+                });
+
+                this.startTimer();
+            },
+
+            async checkAnswer(choice) {
+                if (this.gameOver) return;
+
+                clearInterval(this.timerInterval);
+                const feedback = document.getElementById('feedback');
+
+                if (choice === this.currentChallenge.answer) {
+                    feedback.textContent = "Correto!";
+                    feedback.className = "feedback correct";
+                    this.score += 10;
+                    this.correctAnswers++;
+                    this.totalQuestions++;
+
+                    if (this.currentUser) {
+                        await updateScore(this.currentUser._id, this.score);
+                    }
+
+                    document.getElementById('score').textContent = this.score;
+
+                    if (this.correctAnswers >= this.maxQuestionsPerLevel) {
+                        this.advanceLevel();
+                    }
+                } else {
+                    feedback.textContent = "Incorreto! A resposta correta é " + this.currentChallenge.answer;
+                    feedback.className = "feedback incorrect";
+                    this.totalQuestions++;
+                }
+
+                if (this.correctAnswers === 150) {
+                    this.gameOver = true;
+                    this.showGameOver();
+                }
+
+                this.showCorrectAnswer();
+            },
+
+            advanceLevel() {
+                const difficulties = ['easy', 'medium', 'hard'];
+                const currentIndex = difficulties.indexOf(this.currentDifficulty);
+
+                if (currentIndex < difficulties.length - 1) {
+                    this.currentDifficulty = difficulties[currentIndex + 1];
+                    this.correctAnswers = 0;
+                    document.getElementById('difficulty').value = this.currentDifficulty;
+                    this.resetChallenge();
+                } else {
+                    this.gameOver = true;
+                    this.showGameOver();
+                }
+            },
+
+            showGameOver() {
+                const feedback = document.getElementById('feedback');
+                feedback.textContent = "Parabéns! Você completou todos os níveis sem errar! 🎉";
+                feedback.className = "feedback correct";
+                document.getElementById('next-btn').disabled = true;
+            }
+        };
+
+        // Função para atualizar a pontuação no backend
+        async function updateScore(userId, score) {
+            const response = await fetch('http://localhost:5000/api/update-score', {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ userId, score })
+            });
+
+            const data = await response.json();
+            if (response.ok) {
+                console.log(data.message);
+            } else {
+                console.error(data.error);
+            }
+        }
+
+        // Função para obter o ranking
+        async function updateRankings() {
+            const response = await fetch('http://localhost:5000/api/ranking');
+            const rankings = await response.json();
+
+            const tableBody = document.getElementById('ranking-table-body');
+            tableBody.innerHTML = '';
+
+            if (rankings.length === 0) {
+                const row = document.createElement('tr');
+                const cell = document.createElement('td');
+                cell.colSpan = 5;
+                cell.textContent = 'Nenhum resultado encontrado';
+                cell.style.textAlign = 'center';
+                row.appendChild(cell);
+                tableBody.appendChild(row);
+                return;
+            }
+
+            rankings.forEach((ranking, index) => {
+                const row = document.createElement('tr');
+
+                const positionCell = document.createElement('td');
+                positionCell.textContent = index + 1;
+
+                const nameCell = document.createElement('td');
+                nameCell.textContent = ranking.name;
+
+                const schoolCell = document.createElement('td');
+                schoolCell.textContent = ranking.school;
+
+                const gradeCell = document.createElement('td');
+                const gradeMap = {
+                    '1': '1º ano', '2': '2º ano', '3': '3º ano',
+                    '4': '4º ano', '5': '5º ano', '6': '6º ano',
+                    '7': '7º ano', '8': '8º ano', '9': '9º ano',
+                    '10': '1º ano - Ensino Médio', '11': '2º ano - Ensino Médio', '12': '3º ano - Ensino Médio'
+                };
+                gradeCell.textContent = gradeMap[ranking.grade] || ranking.grade;
+
+                const scoreCell = document.createElement('td');
+                scoreCell.textContent = ranking.score;
+
+                row.appendChild(positionCell);
+                row.appendChild(nameCell);
+                row.appendChild(schoolCell);
+                row.appendChild(gradeCell);
+                row.appendChild(scoreCell);
+
+                tableBody.appendChild(row);
+            });
+        }
+
+        // Inicializar a aplicação
+        document.addEventListener('DOMContentLoaded', () => {
+            // Configurar eventos
+            document.getElementById('register-btn').addEventListener('click', async () => {
+                const name = document.getElementById('register-name').value.trim();
+                const email = document.getElementById('register-email').value.trim();
+                const password = document.getElementById('register-password').value;
+                const school = document.getElementById('register-school').value.trim();
+                const grade = document.getElementById('register-grade').value;
+                const age = document.getElementById('register-age').value;
+
+                if (!name || !email || !password || !school || !grade || !age) {
+                    alert('Por favor, preencha todos os campos');
+                    return;
+                }
+
+                const response = await fetch('http://localhost:5000/api/register', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ name, email, password, school, grade, age })
+                });
+
+                const data = await response.json();
+                if (response.ok) {
+                    alert(data.message);
+                    switchTab('login');
+                } else {
+                    alert(data.error);
+                }
+            });
+
+            document.getElementById('login-btn').addEventListener('click', async () => {
+                const email = document.getElementById('login-email').value.trim();
+                const password = document.getElementById('login-password').value;
+
+                if (!email || !password) {
+                    alert('Por favor, preencha todos os campos');
+                    return;
+                }
+
+                const response = await fetch('http://localhost:5000/api/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, password })
+                });
+
+                const data = await response.json();
+                if (response.ok) {
+                    State.setCurrentUser(data.user);
+                    alert(data.message);
+                    switchTab('challenge');
+                } else {
+                    alert(data.error);
+                }
+            });
+
+            document.getElementById('next-btn').addEventListener('click', () => {
+                if (State.currentUser) {
+                    State.resetChallenge();
+                }
+            });
+
+            document.getElementById('ranking-filter').addEventListener('change', () => {
+                updateRankings();
+            });
+        });
+    </script>
+</body>
+</html>
