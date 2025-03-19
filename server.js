@@ -32,6 +32,12 @@ app.get('/', (req, res) => {
 // Rotas da API
 app.use('/api', apiRoutes);
 
+// Middleware de tratamento de erros
+app.use((err, req, res, next) => {
+  console.error(err.stack);
+  res.status(500).json({ error: 'Erro interno no servidor.', details: err.message });
+});
+
 // Iniciar servidor
 app.listen(PORT, () => {
   console.log(`Servidor rodando na porta ${PORT}`);
